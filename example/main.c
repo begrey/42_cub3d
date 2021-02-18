@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <math.h>
 #define PI 3.1415926535
-#define HEIGHT 400
-#define WIDTH 400
+#define HEIGHT 401
+#define WIDTH 401
 #define SQ_W 40
 #define SQ_H 40
 #define KEYPRESS 2
@@ -85,45 +85,32 @@ void make_user(t_game *g)
     }
 }
 
-void make_square(t_game *g, int w, int h, int map)
+void make_map(t_game *g, int x, int y)
 {
     int i, j;
     i = -1;
     j = -1;
-
-    while (j++ < SQ_W - 1)
+    while (i++ <= HEIGHT)
     {
-        while (i++ < SQ_H - 1)
+        while (j++ <= WIDTH)
         {
-            if (map == 1)
+            if (i % SQ_H != 0 && j % SQ_W != 0)
             {
-                g->wall[(w + i) + (h + j) * WIDTH] = 1;
-                g->img.data[(w + i) + (h + j) * WIDTH] = 0x4682B4;
+                if (map[i / SQ_H][j / SQ_W] == 1)
+                {
+                    g->wall[j + i * WIDTH] = 1;
+                    g->img.data[j + i * WIDTH] = 0x4682B4;
+                }
+                else if (map[i / SQ_H][j / SQ_W] == 0)
+                {
+                    g->img.data[j + i * WIDTH] = 0xFFFFFF;
+                }
+
             }
             else
-            {
-                g->img.data[(w + i) + (h + j) * WIDTH] = 0xFFFFFF;
-            }
-            // if ((w % SQ_W == 0 || h % SQ_H == 0) && (i == 0 || j == 0))
-            // {
-            //     g->img.data[(w + i) + (h + j) * WIDTH] = 0x000000;
-            // }
+                g->img.data[j + i * WIDTH] = 0x000000;
         }
-        i = -1;
-    }
-}
-
-void make_map(t_game *g, int x, int y)
-{
-    while (y < HEIGHT)
-    {
-        while (x < WIDTH)
-        {
-            make_square(g, x, y, map[y / SQ_W][x / SQ_H]);
-            x += SQ_W;
-        }
-        x = 0;
-        y += SQ_H;
+        j = -1;
     }
 }
 // int is_pass_wall(t_game *g)
@@ -160,8 +147,12 @@ int press_event(int key, t_game *g) //여기서 움직인 위치를
         g->user.x -= cos(g->user.angle);
         g->user.y -= sin(g->user.angle);
     }
-    else if (key == A)
-        g->user.x -= 2;
+    else if (key == A){
+        double nx = g->user.x - 2;
+        double ny = g->user.y;
+        if (!map[(int)(ny/40)][(int)(nx/40)])
+            g->user.x -= 2;
+    }
     else if (key == D)
         g->user.x += 2;
     else if (key == Q)
