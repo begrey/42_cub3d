@@ -6,7 +6,7 @@
 /*   By: jimkwon <jimkwon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 14:48:54 by jimkwon           #+#    #+#             */
-/*   Updated: 2021/02/23 17:23:15 by jimkwon          ###   ########.fr       */
+/*   Updated: 2021/02/25 12:04:21 by jimkwon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,10 @@ typedef struct s_game
     void *win;
     int wall[1000000];
     t_img img;
-    t_img wall2;
+    t_img wall_n;
+    t_img wall_s;
+    t_img wall_e;
+    t_img wall_w;
     t_user user;
     t_element element;
 

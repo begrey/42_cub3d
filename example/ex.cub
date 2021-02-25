@@ -5,5 +5,5 @@ WE ./path_to_the_west_texture
 EA ./path_to_the_east_texture
 
 S ./path_to_the_sprite_texture
-F 3,181,148
-C 255,000,255
+F 204,204,255
+C 255,204,255

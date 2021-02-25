@@ -18,55 +18,70 @@
 #define E 14
 #define USER 10;
 #define RAY_ANGLE 60;
-
 int map[10][10] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0, 0, 1, 0, 0, 1},
-    {1, 1, 1, 1, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 1, 1, 1, 1, 0, 1, 0, 1, 1},
-    {1, 0, 0, 0, 1, 0, 1, 0, 0, 1},
-    {1, 0, 1, 0, 1, 1, 1, 1, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 1, 1, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-
 void draw(t_game *g, int x, int y, int color)
 {
     g->img.data[x + y * WIDTH] = color;
 }
-
 void make_wall(t_game *g, double x, double y, int num, double angle)
 {
-    int ray_x, ray_y, i;
+    int ray_x, ray_y, i, w_x, w_y;
     int start = HEIGHT / 2;
-    int colora, colorb;
+    int colora, colorb, color, h, flag;
     double distance, ratio;
-
     ray_x = g->user.x - x;
     ray_y = g->user.y - y;
     distance = sqrt(ray_x * ray_x + ray_y * ray_y) * cos(angle);
     i = 0;
     ratio = 1 / (distance / 5);
-
     while (i < HEIGHT / 2)
     {
         if (i < ratio * 1000)
         {
-            colora = g->wall2.data[i + (ray_x % SQ_H) * g->wall2.width];
-            colorb = g->wall2.data[i + (ray_x % SQ_H) * g->wall2.width];
+            h = g->wall_e.height / 2;
+            w_x = (int)x % SQ_W;
+            w_y = (int)y % SQ_H;
+            if (w_x == 0) //동
+            {
+                colora = g->wall_e.data[(int)(w_y * (g->wall_e.width) / (double)(SQ_H)) + (h - (int)(i * h / (ratio * 1000))) * g->wall_e.width];
+                colorb = g->wall_e.data[(int)(w_y * (g->wall_e.width) / (double)(SQ_H)) + (h + (int)(i * h / (ratio * 1000))) * g->wall_e.width];
+            }
+            if (w_y == 0) //남
+            {
+                colora = g->wall_s.data[(int)(g->wall_s.width - (w_x * (g->wall_s.width / (double)(SQ_H)))) + (h - (int)(i * h / (ratio * 1000))) * g->wall_s.width];
+                colorb = g->wall_s.data[(int)(g->wall_s.width - (w_x * (g->wall_s.width / (double)(SQ_H)))) + (h + (int)(i * h / (ratio * 1000))) * g->wall_s.width];
+            }
+            if (w_x == (SQ_H-1)) // 서
+            { 
+                colora = g->wall_w.data[(int)(g->wall_w.width - (w_y * (g->wall_w.width / (double)(SQ_H)))) + (h - (int)(i * h / (ratio * 1000))) * g->wall_w.width];
+                colorb = g->wall_w.data[(int)(g->wall_w.width - (w_y * (g->wall_w.width / (double)(SQ_H)))) + (h + (int)(i * h / (ratio * 1000))) * g->wall_w.width];
+            }
+            if (w_y == (SQ_H-1)) // 북
+            {
+                colora = g->wall_n.data[(int)(w_x * (g->wall_n.width / (double)(SQ_H))) + (h - (int)(i * h / (ratio * 1000))) * g->wall_n.width];
+                colorb = g->wall_n.data[(int)(w_x * (g->wall_n.width / (double)(SQ_H))) + (h + (int)(i * h / (ratio * 1000))) * g->wall_n.width];
+            }
+            draw(g, num, start + i, colorb);
+            draw(g, num, start - i, colora);
         }
         else
         {
-            colora = g->element.c_color;
-            colorb = g->element.f_color;
+            draw(g, num, start + i, g->element.c_color);
+            draw(g, num, start - i, g->element.f_color);
         }
-        draw(g, num, start + i, colora);
-        draw(g, num, start - i , colorb);
         i++;
     }
 }
-
 void make_user(t_game *g)
 {
     int i, j;
@@ -77,7 +92,6 @@ void make_user(t_game *g)
     x = (int)g->user.x - (10 / 2);
     y = (int)g->user.y + (10 / 2);
     cos_angle = -60 / 2 * PI / 180;
-
     while (i++ < 10)
     {
         while (j++ < 10)
@@ -109,7 +123,6 @@ void make_user(t_game *g)
     }
     g->user.angle = angle;
 }
-
 void make_map(t_game *g, int x, int y)
 {
     int i, j;
@@ -123,7 +136,6 @@ void make_map(t_game *g, int x, int y)
             {
                 if (map[i / SQ_H][j / SQ_W] == 1)
                 {
-                    g->wall[j + i * WIDTH] = 1;
                     draw(g, j, i, 0x4682B4);
                 }
                 else if (map[i / SQ_H][j / SQ_W] == 0)
@@ -164,7 +176,6 @@ int is_pass_wall(t_game *g)
         status *= 7;
     return status;
 }
-
 int press_event(int key, t_game *g) //여기서 움직인 위치를
 {
     int i, j;
@@ -202,7 +213,6 @@ int press_event(int key, t_game *g) //여기서 움직인 위치를
     mlx_put_image_to_window(g->mlx, g->win, g->img.img, 100, 100);
     return 1;
 }
-
 int unpress_event(t_game *g)
 {
     int i, j;
@@ -213,38 +223,40 @@ int unpress_event(t_game *g)
     mlx_put_image_to_window(g->mlx, g->win, g->img.img, 100, 100);
     return 1;
 }
-
 int main()
 {
     t_game game;
     int fd;
-	char *line;
+    char *line;
     int h, w;
-
-	fd = open("./ex.cub", O_RDONLY);
-
-	if (fd == -1)
-		printf("ERROR!\n");
-	while(get_next_line(fd, &line) != 0)
-	{
+    fd = open("./ex.cub", O_RDONLY);
+    if (fd == -1)
+        printf("ERROR!\n");
+    while (get_next_line(fd, &line) != 0)
+    {
         if (*line != 0)
-		    get_next_word(line, &game);
-	}
+            get_next_word(line, &game);
+    }
     close(fd);
     game.mlx = mlx_init();
     game.win = mlx_new_window(game.mlx, 800, 800, "jimkwon");
     game.img.img = mlx_new_image(game.mlx, WIDTH, HEIGHT);
-    game.wall2.img = mlx_xpm_file_to_image(game.mlx, "./wall.xpm", &game.wall2.height, &game.wall2.width);
-    game.wall2.data = (int *)mlx_get_data_addr(game.wall2.img, &game.wall2.bpp, &game.wall2.size_l, &game.wall2.endian);
+    game.wall_e.img = mlx_xpm_file_to_image(game.mlx, "./wall_e.xpm", &game.wall_e.height, &game.wall_e.width);
+    game.wall_n.img = mlx_xpm_file_to_image(game.mlx, "./wall_n.xpm", &game.wall_n.height, &game.wall_n.width);
+    game.wall_s.img = mlx_xpm_file_to_image(game.mlx, "./wall_s.xpm", &game.wall_s.height, &game.wall_s.width);
+    game.wall_w.img = mlx_xpm_file_to_image(game.mlx, "./wall_w.xpm", &game.wall_w.height, &game.wall_w.width);
+    game.wall_e.data = (int *)mlx_get_data_addr(game.wall_e.img, &game.wall_e.bpp, &game.wall_e.size_l, &game.wall_e.endian);
+    game.wall_n.data = (int *)mlx_get_data_addr(game.wall_n.img, &game.wall_n.bpp, &game.wall_n.size_l, &game.wall_n.endian);
+    game.wall_s.data = (int *)mlx_get_data_addr(game.wall_s.img, &game.wall_s.bpp, &game.wall_s.size_l, &game.wall_s.endian);
+    game.wall_w.data = (int *)mlx_get_data_addr(game.wall_w.img, &game.wall_w.bpp, &game.wall_w.size_l, &game.wall_w.endian);
     game.user.x = SQ_W + 20;
     game.user.y = HEIGHT - 50;
     game.user.turn_d = 0;
     game.user.walk_d = 0;
     game.user.angle = PI * 3 / 2;
     game.user.walk_speed = 2;
-    game.user.turn_speed = 8 * (PI / 180);
+    game.user.turn_speed = 10 * (PI / 180);
     game.img.data = (int *)mlx_get_data_addr(game.img.img, &game.img.bpp, &game.img.size_l, &game.img.endian);
-
     make_map(&game, 0, 0);                                //맵만들기
     make_user(&game);                                     //init_user;
     mlx_hook(game.win, KEYPRESS, 0, &press_event, &game); //키입력시 유저이동
