@@ -11,15 +11,16 @@
 /* ************************************************************************** */
 
 #ifndef CUB_3D_H
-# define CUB_3D_H
+#define CUB_3D_H
 
-# include <stdlib.h>
-# include <unistd.h>
-# include <limits.h>
-# include <fcntl.h>
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1
-# endif
+#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
+#include <fcntl.h>
+#include <stdio.h>
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1
+#endif
 
 typedef struct s_img
 {
@@ -55,6 +56,9 @@ typedef struct s_element
     char *sprite;
     int f_color;
     int c_color;
+    int map_x;
+    int map_y;
+    int **map;
 } t_element;
 
 typedef struct s_game
@@ -62,6 +66,11 @@ typedef struct s_game
     void *mlx;
     void *win;
     int wall[1000000];
+    double x_walk;
+    double y_walk;
+    double rotate;
+    int SQ_W;
+    int SQ_H;
     t_img img;
     t_img wall_n;
     t_img wall_s;
@@ -72,20 +81,27 @@ typedef struct s_game
 
 } t_game;
 
-int			get_next_line(int fd, char **line);
-char		*is_in_newline(char *str);
-char		*ft_strjoin(char *s1, char *s2);
-char		*ft_substr(char *s, unsigned int start, size_t len);
-size_t		ft_strlen(const char *str);
-char		*ft_strdup(char *s);
-size_t		ft_strlcpy(char *dest, const char *src, size_t size);
-int			split_new_line(char **line, char **prev, char *index);
-int			return_status(char **line, char **prev, char *index);
-void		get_next_word(char *line, t_game *g);
-static char	*get_word(char *s, int len);
-static int	word_len(char *s, char c);
-static int	count_len(char *s, char c);
-static char	**free_ans(char **a);
-char		**ft_split(char const *s, char c);
+int get_next_line(int fd, char **line);
+char *is_in_newline(char *str);
+char *ft_strjoin(char *s1, char *s2);
+char *ft_substr(char *s, unsigned int start, size_t len);
+size_t ft_strlen(const char *str);
+char *ft_strdup(char *s);
+size_t ft_strlcpy(char *dest, const char *src, size_t size);
+int split_new_line(char **line, char **prev, char *index);
+int return_status(char **line, char **prev, char *index);
+void get_next_word(char *line, t_game *g);
+static char *get_word(char *s, int len);
+static int word_len(char *s, char c);
+static int count_len(char *s, char c);
+static char **free_ans(char **a);
+char **ft_split(char const *s, char c);
+void get_row_and_col(char *line, t_game *g);
+void get_map(char *line, t_game *g, int i);
+void open_file(t_game *g);
+void parse_line(t_game *g, int fd, int fd2);
+void parse_map(t_game *g, int fd, int fd2);
+void init_wall(t_game *g);
+void init_user(t_game *g);
 
 #endif

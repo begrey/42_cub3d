@@ -3,46 +3,33 @@
 
 typedef struct s_list
 {
-    char *word;
+	char *word;
 	struct s_list *next;
 } t_list;
 
 int ft_atoi_base(const char *str, int str_base)
 {
-    int i = 0, minus = 0, len = 0, ans = 0, base = 1, num = 1;
+	int i = 0, len = 0, ans = 0, base = 1, num = 1;
 
-    if (str_base <= 1)
-        return 0;
-    //맨 뒤부터 계산하기 시작하기
-    while (str[i] != '\0')
-        i++;
-    len = i - 1;
-    //1234인 경우, 4부터 시작함
-    while (len >= 0)
-    {
-        if (str[len] == '-' || str[len] == '+') { //첫번째 문자인 경우에반 부호 인정
-            if (len != 0)
-                return 0;
-            if (str[len] == '-')
-                minus = 1;
-        }
-        if (str[len] >= '0' && str[len] <= '9') { //숫자일때  
-            num = str[len] - '0';
-            ans += num * base;
-        }
-        else if (str[len] >= 'a' && str[len] <= 'f') { //a ~ f일때
-            num = str[len] - 'a' + 10;
-            ans += num * base;
-        }
-        else if (str[len] >= 'A' && str[len] <= 'F') { //A ~ F일때
-            num = str[len] - 'A' + 10;
-            ans += num * base;
-        }
-        base *= str_base; //4진수인 경우, 곱하게 될 base 는 계속 4씩 곱해줌
-        len --;
-    }
-    if (minus == 1) return ans * -1;
-    else return ans;
+	while (str[i] != '\0')
+		i++;
+	len = i - 1;
+	while (len >= 0)
+	{
+		if (str[len] >= '0' && str[len] <= '9')
+		{
+			num = str[len] - '0';
+			ans += num * base;
+		}
+		else if (str[len] >= 'A' && str[len] <= 'F')
+		{
+			num = str[len] - 'A' + 10;
+			ans += num * base;
+		}
+		base *= str_base;
+		len--;
+	}
+	return ans;
 }
 
 char *make_hex(int n)
@@ -52,24 +39,24 @@ char *make_hex(int n)
 	char major, minor;
 
 	if (!(hex = (char *)malloc(sizeof(char) * 3)))
-			return (NULL);
+		return (NULL);
 	major = n / 16 + '0';
 	minor = n % 16 + '0';
 	if (major > 57)
 		major += 7;
 	if (minor > 57)
 		minor += 7;
-	
+
 	hex[0] = major;
 	hex[1] = minor;
 	hex[2] = '\0';
 	return hex;
 }
 
-int				ft_atoi(const char *str)
+int ft_atoi(const char *str)
 {
-	long long	minus;
-	long long	total;
+	long long minus;
+	long long total;
 
 	minus = 1;
 	total = 0;
@@ -95,13 +82,13 @@ int				ft_atoi(const char *str)
 	return ((int)(total * minus));
 }
 
-int	rgb_to_hex(char *rgb)
+int rgb_to_hex(char *rgb)
 {
 	int r, g, b, len;
 	char **answer;
 	char *hex;
-    char *s = rgb;
-    answer = ft_split(s, ',');
+	char *s = rgb;
+	answer = ft_split(s, ',');
 	r = ft_atoi(answer[0]);
 	g = ft_atoi(answer[1]);
 	b = ft_atoi(answer[2]);
@@ -110,11 +97,11 @@ int	rgb_to_hex(char *rgb)
 	return (ft_atoi_base(hex, 16));
 }
 
-int					ft_strncmp(const char *str1, const char *str2, size_t num)
+int ft_strncmp(const char *str1, const char *str2, size_t num)
 {
-	unsigned char	*p1;
-	unsigned char	*p2;
-	size_t			i;
+	unsigned char *p1;
+	unsigned char *p2;
+	size_t i;
 
 	i = 0;
 	p1 = (unsigned char *)str1;
@@ -134,9 +121,9 @@ int					ft_strncmp(const char *str1, const char *str2, size_t num)
 	return (0);
 }
 
-t_list		*ft_lstlast(t_list *lst)
+t_list *ft_lstlast(t_list *lst)
 {
-	t_list	*temp;
+	t_list *temp;
 
 	if (!lst)
 		return (NULL);
@@ -146,26 +133,26 @@ t_list		*ft_lstlast(t_list *lst)
 	return (temp);
 }
 
-void		ft_lstadd_back(t_list **lst, t_list *new)
+void ft_lstadd_back(t_list **lst, t_list *new)
 {
-	t_list	*last;
-	t_list	*temp;
+	t_list *last;
+	t_list *temp;
 
 	temp = *lst;
 	if (temp == NULL)
 	{
 		*lst = new;
 		new->next = NULL;
-		return ;
+		return;
 	}
 	temp = *lst;
 	last = ft_lstlast(temp);
 	last->next = new;
 }
 
-t_list		*ft_lstnew(char *content)
+t_list *ft_lstnew(char *content)
 {
-	t_list	*lst;
+	t_list *lst;
 
 	if (!(lst = (t_list *)malloc(sizeof(t_list) * 1)))
 		return (NULL);
@@ -176,28 +163,30 @@ t_list		*ft_lstnew(char *content)
 
 void set_element(t_list *e, t_game *g)
 {
-	t_list *temp;
-
-	temp = e;
-	if (ft_strncmp(temp->word, "R", ft_strlen(temp->word)) == 0)
+	if (ft_strncmp(e->word, "R", ft_strlen(e->word)) == 0)
 	{
-		g->element.x_size = ft_atoi(temp->word);
-		g->element.y_size = ft_atoi(temp->word);
+		g->element.x_size = ft_atoi(e->next->word);
+		g->element.y_size = ft_atoi(e->next->next->word);
 	}
-	else if (ft_strncmp(temp->word, "NO", ft_strlen(temp->word)) == 0)
-		g->element.n_texture = temp->next->word;
-	else if (ft_strncmp(temp->word, "SO", ft_strlen(temp->word)) == 0)
-		g->element.s_texture = temp->next->word;
-	else if (ft_strncmp(temp->word, "WE", ft_strlen(temp->word)) == 0)
-		g->element.w_texture = temp->next->word;
-	else if (ft_strncmp(temp->word, "EA", ft_strlen(temp->word)) == 0)
-		g->element.e_texture = temp->next->word;
-	else if (ft_strncmp(temp->word, "S", ft_strlen(temp->word)) == 0)
-		g->element.sprite = temp->next->word;
-	else if (ft_strncmp(temp->word, "F", ft_strlen(temp->word)) == 0)
-		g->element.f_color = rgb_to_hex(temp->next->word);
-	else if (ft_strncmp(temp->word, "C", ft_strlen(temp->word)) == 0)
-		g->element.c_color = rgb_to_hex(temp->next->word);
+	else if (ft_strncmp(e->word, "NO", ft_strlen(e->word)) == 0)
+		g->element.n_texture = e->next->word;
+	else if (ft_strncmp(e->word, "S", ft_strlen(e->word)) == 0)
+		g->element.sprite = e->next->word;
+	else if (ft_strncmp(e->word, "SO", ft_strlen(e->word)) == 0)
+		g->element.s_texture = e->next->word;
+	else if (ft_strncmp(e->word, "WE", ft_strlen(e->word)) == 0)
+		g->element.w_texture = e->next->word;
+	else if (ft_strncmp(e->word, "EA", ft_strlen(e->word)) == 0)
+		g->element.e_texture = e->next->word;
+	else if (ft_strncmp(e->word, "F", ft_strlen(e->word)) == 0)
+		g->element.f_color = rgb_to_hex(e->next->word);
+	else if (ft_strncmp(e->word, "C", ft_strlen(e->word)) == 0)
+		g->element.c_color = rgb_to_hex(e->next->word);
+	else
+	{
+		printf("WRONG INPUT!");
+		exit(0);
+	}
 }
 
 void get_next_word(char *line, t_game *g)
@@ -210,7 +199,7 @@ void get_next_word(char *line, t_game *g)
 	word = "";
 	i = 0;
 	j = 0;
-	while(line[i] != '\0')
+	while (line[i] != '\0')
 	{
 		if (line[i] == ' ')
 		{
@@ -225,4 +214,39 @@ void get_next_word(char *line, t_game *g)
 	set_element(list, g);
 	free(w);
 	free(list);
+}
+
+void get_row_and_col(char *line, t_game *g)
+{
+	g->element.map_x += 1;					//행
+	if (g->element.map_y < ft_strlen(line)) //열
+		g->element.map_y = ft_strlen(line);
+}
+
+void get_map(char *line, t_game *g, int i)
+{
+	int j;
+
+	j = 0;
+	g->element.map[i] = malloc(sizeof(int) * g->element.map_y);
+	while (line[j] != '\0')
+	{
+		if (line[j] == ' ')
+			g->element.map[i][j] = 1;
+		else if (line[j] >= '0' && line[j] <= '2')
+			g->element.map[i][j] = line[j] - '0';
+		else if (line[j] == 'N' || line[j] == 'W' || line[j] == 'E' || line[j] == 'S')
+			g->element.map[i][j] = line[j];
+		else
+		{
+			printf("WRONG MAP INPUT!");
+			exit(0);
+		}
+		j++;
+	}
+	while (j < g->element.map_y)
+	{
+		g->element.map[i][j] = 1;
+		j++;
+	}
 }
