@@ -82,16 +82,13 @@ int ft_atoi(const char *str)
 	return ((int)(total * minus));
 }
 
-int rgb_to_hex(char *rgb)
+int rgb_to_hex(int *color)
 {
 	int r, g, b, len;
-	char **answer;
 	char *hex;
-	char *s = rgb;
-	answer = ft_split(s, ',');
-	r = ft_atoi(answer[0]);
-	g = ft_atoi(answer[1]);
-	b = ft_atoi(answer[2]);
+	r = color[0];
+	g = color[1];
+	b = color[2];
 	hex = ft_strjoin(make_hex(r), make_hex(g));
 	hex = ft_strjoin(hex, make_hex(b));
 	return (ft_atoi_base(hex, 16));
@@ -121,99 +118,90 @@ int ft_strncmp(const char *str1, const char *str2, size_t num)
 	return (0);
 }
 
-t_list *ft_lstlast(t_list *lst)
+void handle_color(t_game *g, char **color, char type)
 {
-	t_list *temp;
+	int i;
+	int j;
+	int c[3];
 
-	if (!lst)
-		return (NULL);
-	temp = lst;
-	while (temp->next != NULL)
-		temp = temp->next;
-	return (temp);
-}
-
-void ft_lstadd_back(t_list **lst, t_list *new)
-{
-	t_list *last;
-	t_list *temp;
-
-	temp = *lst;
-	if (temp == NULL)
+	i = 0;
+	j = 0;
+	while(i < 3)
 	{
-		*lst = new;
-		new->next = NULL;
-		return;
+		if (ft_atoi(color[i]) > 255 && ft_atoi(color[i]) < 0)
+			print_error("WRONG COLOR INPUT!");
+		c[j] = ft_atoi(color[i]);
+		j++;
+		i++;
 	}
-	temp = *lst;
-	last = ft_lstlast(temp);
-	last->next = new;
-}
-
-t_list *ft_lstnew(char *content)
-{
-	t_list *lst;
-
-	if (!(lst = (t_list *)malloc(sizeof(t_list) * 1)))
-		return (NULL);
-	lst->word = content;
-	lst->next = NULL;
-	return (lst);
-}
-
-void set_element(t_list *e, t_game *g)
-{
-	if (ft_strncmp(e->word, "R", ft_strlen(e->word)) == 0)
-	{
-		g->element.x_size = ft_atoi(e->next->word);
-		g->element.y_size = ft_atoi(e->next->next->word);
-	}
-	else if (ft_strncmp(e->word, "NO", ft_strlen(e->word)) == 0)
-		g->element.n_texture = e->next->word;
-	else if (ft_strncmp(e->word, "S", ft_strlen(e->word)) == 0)
-		g->element.sprite = e->next->word;
-	else if (ft_strncmp(e->word, "SO", ft_strlen(e->word)) == 0)
-		g->element.s_texture = e->next->word;
-	else if (ft_strncmp(e->word, "WE", ft_strlen(e->word)) == 0)
-		g->element.w_texture = e->next->word;
-	else if (ft_strncmp(e->word, "EA", ft_strlen(e->word)) == 0)
-		g->element.e_texture = e->next->word;
-	else if (ft_strncmp(e->word, "F", ft_strlen(e->word)) == 0)
-		g->element.f_color = rgb_to_hex(e->next->word);
-	else if (ft_strncmp(e->word, "C", ft_strlen(e->word)) == 0)
-		g->element.c_color = rgb_to_hex(e->next->word);
+	if (type == 'F')
+		g->element.f_color = rgb_to_hex(c);
 	else
-	{
-		printf("WRONG INPUT!");
-		exit(0);
-	}
+		g->element.c_color = rgb_to_hex(c);
+}
+
+void handle_size(t_game *g, char **word)
+{
+	if (word[3] != NULL)
+		print_error("WRONG SIZE NUM!");
+	g->element.x_size = ft_atoi(word[1]);
+	g->element.y_size = ft_atoi(word[2]);
+}
+
+char *handle_texture(t_game *g, char **word)
+{
+	if (word[2] != NULL)
+		print_error("WRONG TEXTURE NUM!");
+	return (word[1]);
+}
+
+void seperate_type(t_game *g, char *type, char **word)
+{
+	if (ft_strncmp(type, "R", ft_strlen(type)) == 0)
+		handle_size(g, word);
+	else if (ft_strncmp(type, "NO", ft_strlen(type)) == 0)
+		g->element.n_texture = handle_texture(g, word);
+	else if (ft_strncmp(type, "S", ft_strlen(type)) == 0)
+		g->element.sprite = handle_texture(g, word);
+	else if (ft_strncmp(type, "SO", ft_strlen(type)) == 0)
+		g->element.s_texture = handle_texture(g, word);
+	else if (ft_strncmp(type, "WE", ft_strlen(type)) == 0)
+		g->element.w_texture = handle_texture(g, word);
+	else if (ft_strncmp(type, "EA", ft_strlen(type)) == 0)
+		g->element.e_texture = handle_texture(g, word);
+	else
+		print_error("WRONG TYPE!");
 }
 
 void get_next_word(char *line, t_game *g)
 {
-	int i, j;
-	char *word;
-	t_list *w, *list;
+	char **word;
+	char **color;
+	char* type;
+	t_list* w;
+	int comma;
+	int i;
 
-	list = NULL;
-	word = "";
 	i = 0;
-	j = 0;
-	while (line[i] != '\0')
+	comma = 0;
+	word = ft_split(line, ' ');
+	type = word[0];
+	if (ft_strncmp(type, "F", ft_strlen(type)) == 0 ||
+	ft_strncmp(type, "C", ft_strlen(type)) == 0)
 	{
-		if (line[i] == ' ')
+		while(line[i] != '\0')
 		{
-			w = ft_lstnew(ft_substr(line, j, i - j));
-			ft_lstadd_back(&list, w);
-			j = i + 1;
+			if (line[i] == ',')
+				comma++;
+			i++;
 		}
-		i++;
+		if (comma != 2)
+			print_error("WRONG COMMA NUM!");
+		color = ft_split(line + 1, ',');
+		handle_color(g, color, line[0]);
+		return;
 	}
-	w = ft_lstnew(ft_substr(line, j, i - j + 1));
-	ft_lstadd_back(&list, w);
-	set_element(list, g);
-	free(w);
-	free(list);
+	seperate_type(g, type, word);
 }
 
 void get_row_and_col(char *line, t_game *g)
@@ -232,21 +220,18 @@ void get_map(char *line, t_game *g, int i)
 	while (line[j] != '\0')
 	{
 		if (line[j] == ' ')
-			g->element.map[i][j] = 1;
+			g->element.map[i][j] = 3;
 		else if (line[j] >= '0' && line[j] <= '2')
 			g->element.map[i][j] = line[j] - '0';
 		else if (line[j] == 'N' || line[j] == 'W' || line[j] == 'E' || line[j] == 'S')
 			g->element.map[i][j] = line[j];
 		else
-		{
-			printf("WRONG MAP INPUT!");
-			exit(0);
-		}
+			print_error("WRONG MAP INPUT!");
 		j++;
 	}
 	while (j < g->element.map_y)
 	{
-		g->element.map[i][j] = 1;
+		g->element.map[i][j] = 3;
 		j++;
 	}
 }

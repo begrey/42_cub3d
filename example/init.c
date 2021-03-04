@@ -17,3 +17,9 @@ void init_user(t_game *g)
     g->y_walk = 0;
     g->rotate = 0;
 }
+
+void print_error(char *message)
+{
+    printf("%s\n", message);
+    exit(0);
+}

@@ -6,7 +6,7 @@
 /*   By: jimkwon <jimkwon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 14:48:54 by jimkwon           #+#    #+#             */
-/*   Updated: 2021/02/25 12:04:21 by jimkwon          ###   ########.fr       */
+/*   Updated: 2021/03/04 11:18:07 by jimkwon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,5 +103,6 @@ void parse_line(t_game *g, int fd, int fd2);
 void parse_map(t_game *g, int fd, int fd2);
 void init_wall(t_game *g);
 void init_user(t_game *g);
+void print_error(char *message);
 
 #endif

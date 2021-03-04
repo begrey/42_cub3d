@@ -13,12 +13,31 @@ void map_check(t_game *g)
         {
             if (i == 0 || j == 0 || i == g->element.map_x - 1 || j == g->element.map_y - 1)
             {
-                if (g->element.map[i][j] == 0 || g->element.map[i][j] == 'W' ||
-                    g->element.map[i][j] == 'S' || g->element.map[i][j] == 'E' || g->element.map[i][j] == 'N')
-                {
-                    printf("MAP ERROR!\n");
-                    exit(0);
-                }
+                if (g->element.map[i][j] == 0)
+                    print_error("MAP ERROR!");
+            }
+            j++;
+        }
+        i++;
+    }
+}
+
+void blank_check(t_game *g)
+{
+    int i;
+    int j;
+
+    i = 0;
+    while (i < g->element.map_x)
+    {
+        j = 0;
+        while (j < g->element.map_y)
+        {
+            if (g->element.map[i][j] != 1 && g->element.map[i][j] != 3)
+            {
+                if ((i != 0 && g->element.map[i - 1][j] == 3) || (j != g->element.map_y - 1 && g->element.map[i][j + 1] == 3) ||
+                    (i != g->element.map_x - 1 && g->element.map[i + 1][j] == 3) || (j != 0 && g->element.map[i][j - 1] == 3))
+                    print_error("MAP ERROR!");
             }
             j++;
         }
@@ -84,9 +103,10 @@ void open_file(t_game *g)
     fd = open("./ex.cub", O_RDONLY);
     fd2 = open("./ex.cub", O_RDONLY);
     if (fd == -1 || fd2 == -1)
-        printf("ERROR!\n");
+        print_error("FD ERROR!");
     parse_line(g, fd, fd2);
     map_check(g);
+    blank_check(g);
     close(fd);
     close(fd2);
 }

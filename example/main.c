@@ -27,9 +27,11 @@ void make_wall(t_game *g, double x, double y, int num, double angle)
     double distance, ratio, ray_x, ray_y;
     ray_x = g->user.x - x;
     ray_y = g->user.y - y;
-    distance = sqrt(ray_x * ray_x + ray_y * ray_y) * cos(angle);
+    distance = sqrtf(ray_x * ray_x + ray_y * ray_y) * cos(angle);
     i = 0;
+    distance -= 0.8;
     ratio = (double)1 / (distance / 10) * g->element.y_size * ((double)1000 / 400);
+    printf("%f\n", distance);
     while (i < g->element.y_size / 2)
     {
         if (i < (int)(ratio))
@@ -77,7 +79,7 @@ void make_sprite(t_game *g, double x, double y)
 void make_user(t_game *g)
 {
     int i, j;
-    int x, y;
+    double x, y;
     double angle, cos_angle;
     cos_angle = -60 / 2 * PI / 180;
     j = 1;
@@ -92,17 +94,18 @@ void make_user(t_game *g)
         {
             x = g->user.x + (cos(g->user.angle) * j);
             y = g->user.y + (sin(g->user.angle) * j);
-            //draw(g, x, y, g->element.c_color);
-            if (g->element.map[y / g->SQ_H][x / g->SQ_W] == 1)
+            if (g->element.map[(int)y / g->SQ_H][(int)x / g->SQ_W] == 1)
             {
-                make_wall(g, x, y, i, cos_angle);
+                make_wall(g, floor(x), floor(y), i, cos_angle);
                 break;
             }
-            else if (g->element.map[y / g->SQ_H][x / g->SQ_W] == 2)
+            else if (g->element.map[(int)y / g->SQ_H][(int)x / g->SQ_W] == 2)
             {
                 make_sprite(g, x, y);
                 break;
             }
+            else if (g->element.map[(int)y / g->SQ_H][(int)x / g->SQ_W] == 3)
+                break;
             j++;
         }
         j = 1;
@@ -182,6 +185,16 @@ int main()
     game.wall_s.data = (int *)mlx_get_data_addr(game.wall_s.img, &game.wall_s.bpp, &game.wall_s.size_l, &game.wall_s.endian);
     game.wall_w.data = (int *)mlx_get_data_addr(game.wall_w.img, &game.wall_w.bpp, &game.wall_w.size_l, &game.wall_w.endian);
     init_user(&game);
+    for (int i = 0; i < game.element.map_x; i++)
+    {
+        for (int j = 0; j < game.element.map_y; j++)
+            printf("%d ", game.element.map[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+    printf("\n");
+    printf("\n");
+
     game.img.data = (int *)mlx_get_data_addr(game.img.img, &game.img.bpp, &game.img.size_l, &game.img.endian);
     mlx_hook(game.win, 3, 0, &unpress_event, &game);
     mlx_hook(game.win, KEYPRESS, 0, &press_event, &game);
